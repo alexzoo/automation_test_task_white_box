@@ -69,7 +69,8 @@ class ProjectPage(BasePage):
         self.click(xpath="//button[@class='js-pr-create s-btn -xs -success temp-tn-projects__submit']//span[@class='s-btn__text'][contains(text(),'Create')] ")
 
     def get_project_title(self):
-        title = self.driver.find_element_by_css_selector("div.pr-page__breadcrumbs-wrapper.js-breadcrumbs > div > span").text
+        self.wait_element_to_be_clickable(xpath="//span[@class='s-icon -s -settings']")
+        title = self.driver.find_element_by_xpath("//div[@class='pr-page__title']//span[1]").text
         return title
 
     def delete_project(self, project_name):
@@ -77,4 +78,4 @@ class ProjectPage(BasePage):
         self.click(xpath="//a[@class='js-remove']")
         self.send_key(project_name, xpath="//input[@placeholder='Project name']")
         self.click(xpath="//span[contains(text(),'Delete')]")
-        self.wait_element_to_be_clickable(xpath="//span[contains(text(),'Add new project')]")
+        self.wait_element_to_be_clickable(xpath=".//div[@data-test='header-menu__user']")

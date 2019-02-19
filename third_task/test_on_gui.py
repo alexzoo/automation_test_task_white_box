@@ -38,6 +38,7 @@ def user_page(driver, request):
     user_page = login_page.click_to_submit_button()
 
     def close_teardown():
+        # driver.quit()
         user_page.logout()
 
     request.addfinalizer(close_teardown)
