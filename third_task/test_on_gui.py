@@ -18,15 +18,14 @@ domain = 'http://coffee.com'
 project_name = 'Test project'
 
 
-@pytest.yield_fixture(scope='session')
+@pytest.fixture(scope='function')
 def driver():
     # Before starting the test, copy chromedriver from http: // www.seleniumhq.org / download / and enter correct PATH.!!
     driver = selenium.webdriver.Chrome("D:\\downloads\\avtotests\\chromedriver.exe")
     driver.get(base_url)
-    driver.implicitly_wait(180)
+    driver.implicitly_wait(200)
     driver.fullscreen_window()
     yield driver
-    driver.quit()
 
 
 @pytest.fixture()
@@ -38,8 +37,7 @@ def user_page(driver, request):
     user_page = login_page.click_to_submit_button()
 
     def close_teardown():
-        # driver.quit()
-        user_page.logout()
+        driver.quit()
 
     request.addfinalizer(close_teardown)
 
@@ -63,11 +61,10 @@ class TestForSemrush:
         assert_that(note_page.get_note_description(), equal_to(note_description))
 
     def test_create_new_project(self, user_page):
-        project_page = user_page.click_project_page_button()
+        project_page = user_page.click_project_page_link()
 
+        project_page.add_new_project_button()
         project_page.fill_project_form(domain, project_name)
         project_page.click_create_project_button()
 
         assert_that(project_page.get_project_title(), contains_string(project_name))
-
-        project_page.delete_project(project_name)

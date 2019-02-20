@@ -1,81 +1,92 @@
 from base_page import BasePage
+from locators import HomePageLocators, UserPageLocators, NotePageLocators, ProjectPageLocators
 
 
 class HomePage(BasePage):
     def click_to_login_button(self):
-        self.click(id="srf-login-btn")
+        self.click(id=HomePageLocators.LOGIN)
         return LoginPage(self.driver)
 
 
 class LoginPage(BasePage):
     def input_credentials(self, email, password):
-        self.send_key(email, xpath=".//input[@name='email']")
-        self.send_key(password, xpath=".//input[@name='password']")
+        self.send_key(email, xpath=HomePageLocators.EMAILFIELD)
+        self.send_key(password, xpath=HomePageLocators.PASSWORDFIELD)
 
     def click_to_submit_button(self):
-        self.click(xpath=".//button[@data-test='auth-popup__submit']")
+        self.click(xpath=HomePageLocators.SUBMIT)
         return UserPage(self.driver)
 
 
 class UserPage(BasePage):
+
     def click_user_menu_button(self):
-        self.click(xpath=".//div[@data-test='header-menu__user']")
+        self.click(xpath=UserPageLocators.USERMENU)
 
     def get_profile_email(self):
-        profile_email = self.driver.find_element_by_xpath(".//div[@class='header-dropdown__description']").text
-        self.click_user_menu_button()
-        return profile_email
+        profile_email = self.get_web_element(UserPageLocators.USEREMAIL)
+        return profile_email.text
 
     def click_note_link(self):
-        self.click(xpath=".//a[@data-ga-label='notes']")
+        self.click(xpath=UserPageLocators.NOTELINK)
         return NotePage(self.driver)
 
-    def click_project_page_button(self):
-        self.click(xpath="//span[@class='tn-projects__add js-ga-createNewProject js-projects-search-bar-create']")
+    def click_project_page_link(self):
+        self.wait_element_to_be_clickable(xpath=UserPageLocators.PROJECTPAGELINK)
+        self.click(xpath=UserPageLocators.PROJECTPAGELINK)
         return ProjectPage(self.driver)
-
-    def logout(self):
-        self.click_user_menu_button()
-        self.click(xpath="//a[contains(text(),'Log out')]")
 
 
 class NotePage(BasePage):
     def click_new_note_button(self):
-        self.click(xpath=".//button[@data-cream-action='add-note']")
+        self.click(xpath=NotePageLocators.NEWNOTEBUTTON)
 
     def fill_note_form(self, note_title, note_description):
-        self.send_key(note_title, xpath=".//input[@data-cream-ui='input-title']")
-        self.send_key(note_description, xpath=".//textarea[@data-cream-ui='input-note']")
+        self.send_key(note_title, xpath=NotePageLocators.NOTETITLEFIELD)
+        self.send_key(note_description, xpath=NotePageLocators.NOTEDESCRIPTIONFIELD)
 
     def click_save_note_button(self):
-        self.click(xpath=".//button[@data-cream-action='save']")
+        self.click(xpath=NotePageLocators.SAVENOTEBUTTON)
 
     def get_note_name(self):
-        note_name = self.driver.find_element_by_xpath(".//span[@class='notes-note-title']").text
-        return note_name
+        note_name = self.get_web_element(xpath=NotePageLocators.NOTENAME)
+        return note_name.text
 
     def get_note_description(self):
-        note_description = self.driver.find_element_by_xpath("//tbody[@data-cream-ui='items']//tr[1]//td[2]//div[1]//div[2]").text
-        return note_description
+        self.wait_element_to_be_clickable(xpath=UserPageLocators.USERMENU)
+        note_description = self.get_web_element(xpath=NotePageLocators.NEWNOTEDESCRIPTION)
+        return note_description.text
 
 
 class ProjectPage(BasePage):
+    def __init__(self, driver):
+        project_name = 'Test project'
+        super().__init__(driver)
+        self._delete_project_if_exists(project_name)
+
+    def add_new_project_button(self):
+        self.wait_element_to_be_clickable(xpath=ProjectPageLocators.ADDNEWPROJECTBUTTON)
+        self.click(xpath=ProjectPageLocators.ADDNEWPROJECTBUTTON)
 
     def fill_project_form(self, domain, project_name):
-        self.send_key(domain, xpath="//input[@class='js-pr-watch-domain temp-tn-projects__input']")
-        self.send_key(project_name, xpath="//input[@class='js-pr-watch-name temp-tn-projects__input']")
+        self.send_key(domain, xpath=ProjectPageLocators.DOMAINFIELD)
+        self.send_key(project_name, xpath=ProjectPageLocators.PROJECTNAMEFIELD)
 
     def click_create_project_button(self):
-        self.click(xpath="//button[@class='js-pr-create s-btn -xs -success temp-tn-projects__submit']//span[@class='s-btn__text'][contains(text(),'Create')] ")
+        self.click(xpath=ProjectPageLocators.NEWPROJECTBUTTON)
 
     def get_project_title(self):
-        self.wait_element_to_be_clickable(xpath="//span[@class='s-icon -s -settings']")
-        title = self.driver.find_element_by_xpath("//div[@class='pr-page__title']//span[1]").text
-        return title
+        self.wait_element_to_be_clickable(xpath=ProjectPageLocators.SETTINGS)
+        title = self.get_web_element(xpath=ProjectPageLocators.PROJECTTITLE)
+        return title.text
 
-    def delete_project(self, project_name):
-        self.click(xpath="//span[@class='s-icon -s -settings']")
-        self.click(xpath="//a[@class='js-remove']")
-        self.send_key(project_name, xpath="//input[@placeholder='Project name']")
-        self.click(xpath="//span[contains(text(),'Delete')]")
-        self.wait_element_to_be_clickable(xpath=".//div[@data-test='header-menu__user']")
+    def _delete_project_if_exists(self, project_name):
+        if self.get_web_element(xpath=ProjectPageLocators.PROJECTEXIST).is_displayed():
+            self.wait_element_to_be_clickable(xpath=ProjectPageLocators.PROJECTEXIST)
+            self.click(xpath=ProjectPageLocators.PROJECTEXIST)
+            self.wait_element_to_be_clickable(xpath=ProjectPageLocators.SETTINGS)
+            self.click(xpath=ProjectPageLocators.SETTINGS)
+            self.click(xpath=ProjectPageLocators.REMOVEBUTTON)
+            self.send_key(project_name, xpath=ProjectPageLocators.DELETEPROJECTNAME)
+            self.click(xpath=ProjectPageLocators.DELETEBUTTON)
+            self.wait_element_to_be_clickable(xpath=UserPageLocators.USERMENU)
