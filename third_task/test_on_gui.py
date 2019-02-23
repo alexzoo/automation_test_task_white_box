@@ -23,7 +23,7 @@ def driver():
     # Before starting the test, copy chromedriver from http: // www.seleniumhq.org / download / and enter correct PATH.!!
     driver = selenium.webdriver.Chrome("D:\\downloads\\avtotests\\chromedriver.exe")
     driver.get(base_url)
-    driver.implicitly_wait(200)
+    driver.implicitly_wait(15)
     driver.fullscreen_window()
     yield driver
 
@@ -62,6 +62,7 @@ class TestForSemrush:
 
     def test_create_new_project(self, user_page):
         project_page = user_page.click_project_page_link()
+        project_page._delete_project_if_exists(project_name)
 
         project_page.add_new_project_button()
         project_page.fill_project_form(domain, project_name)

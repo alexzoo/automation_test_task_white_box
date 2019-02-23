@@ -14,14 +14,11 @@ class BasePage:
             self.driver.find_element_by_xpath(xpath).click()
 
     def wait_element_to_be_clickable(self, xpath):
-        if xpath:
-            WebDriverWait(self.driver, 10).until(expected_conditions.element_to_be_clickable(
+        WebDriverWait(self.driver, 10).until(expected_conditions.element_to_be_clickable(
                 (By.XPATH, xpath)))
 
     def send_key(self, text, xpath):
-        if xpath:
-            self.driver.find_element_by_xpath(xpath).send_keys(text)
+        self.driver.find_element_by_xpath(xpath).send_keys(text)
 
     def get_web_element(self, xpath):
-        if xpath:
-            return self.driver.find_element_by_xpath(xpath)
+        return self.driver.find_element_by_xpath(xpath)

@@ -6,3 +6,5 @@
 
 # venv folder
 venv
+
+.pytest_cache/
