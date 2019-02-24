@@ -10,7 +10,7 @@ from hamcrest import assert_that, contains_string, equal_to
 '''
 
 base_url = "https://www.semrush.com/"
-mail_name = 'epamtestemail1@gmail.com'
+mail_name = 'semrushuitest@gmail.com'
 password = '12345'
 note_title = 'Test Note'
 note_description = 'Test name'
@@ -23,7 +23,7 @@ def driver():
     # Before starting the test, copy chromedriver from http: // www.seleniumhq.org / download / and enter correct PATH.!!
     driver = selenium.webdriver.Chrome("D:\\downloads\\avtotests\\chromedriver.exe")
     driver.get(base_url)
-    driver.implicitly_wait(15)
+    driver.implicitly_wait(20)
     driver.fullscreen_window()
     yield driver
 
@@ -48,7 +48,7 @@ class TestForSemrush:
     def test_login_as_semrush_user(self, user_page):
         user_page.click_user_menu_button()
 
-        assert_that(user_page.get_profile_email(), contains_string('epamtest'))
+        assert_that(user_page.get_profile_email(), contains_string('semrushui'))
 
     def test_create_new_notes(self, user_page):
         note_page = user_page.click_note_link()

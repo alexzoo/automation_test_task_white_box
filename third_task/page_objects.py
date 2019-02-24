@@ -1,5 +1,7 @@
+
 from base_page import BasePage
 from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.common.action_chains import ActionChains
 
 
 class HomePage(BasePage):
@@ -80,12 +82,14 @@ class ProjectPage(BasePage):
     DOMAINFIELD = "//input[@placeholder='Enter project domain']"
     PROJECTNAMEFIELD = "//input[@placeholder='Enter project name']"
     NEWPROJECTBUTTON = "//span[contains(text(),'Create project')]"
+    ABOUTLINK = "//a[@class='s-widget__link'"
     SETTINGS = "//div[@class='sr-infomenu-title']"
     PROJECTTITLE = "//div[@class='pr-page__title']//span[1]"
     PROJECTEXIST = "//div[@class='Styles__body___2zR9D']"
-    REMOVEBUTTON = "//a[@class='js-remove']"
+    REMOVEBUTTON = "//a[contains(text(),'Delete')]"
     DELETEPROJECTNAME = "//input[@placeholder='Project name']"
-    DELETEBUTTON = "//span[contains(text(),'Delete')]"
+    DELETEBUTTON = "//span[contains(text(),'Delete project')]"
+    CREATEDSETTINGS = "//*[@class='sc-1_4_7-icon _1oEeA23r9xDuBmcet_boK']"
 
 
     def add_new_project_button(self):
@@ -111,9 +115,10 @@ class ProjectPage(BasePage):
             return
 
         self.wait_element_to_be_clickable(xpath=self.PROJECTEXIST)
-        self.click(xpath=self.PROJECTEXIST)
-        self.wait_element_to_be_clickable(xpath=self.SETTINGS)
-        self.click(xpath=self.SETTINGS)
+        element = self.get_web_element(xpath=self.PROJECTEXIST)
+        ActionChains(self.driver).move_to_element(element).perform()
+        self.wait_element_to_be_clickable(xpath=self.CREATEDSETTINGS)
+        self.click(xpath=self.CREATEDSETTINGS)
         self.click(xpath=self.REMOVEBUTTON)
         self.send_key(project_name, xpath=self.DELETEPROJECTNAME)
         self.click(xpath=self.DELETEBUTTON)
