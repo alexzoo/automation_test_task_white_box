@@ -1,4 +1,3 @@
-
 from base_page import BasePage
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.action_chains import ActionChains
@@ -91,7 +90,6 @@ class ProjectPage(BasePage):
     DELETEBUTTON = "//span[contains(text(),'Delete project')]"
     CREATEDSETTINGS = "//*[@class='sc-1_4_7-icon _1oEeA23r9xDuBmcet_boK']"
 
-
     def add_new_project_button(self):
         self.wait_element_to_be_clickable(xpath=self.ADDNEWPROJECTBUTTON)
         self.click(xpath=self.ADDNEWPROJECTBUTTON)
@@ -123,4 +121,3 @@ class ProjectPage(BasePage):
         self.send_key(project_name, xpath=self.DELETEPROJECTNAME)
         self.click(xpath=self.DELETEBUTTON)
         self.wait_element_to_be_clickable(xpath=UserPage.USERMENU)
-
