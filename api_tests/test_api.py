@@ -1,3 +1,4 @@
+import pytest
 from hamcrest import *
 import requests
 import os
@@ -28,6 +29,13 @@ not_allowed = '{"error": "Method Not Allowed"}'
 - Для шкалы Fahrenheit минимальное значение может быть −459,67, а используется -9999
 """
 
+# @pytest.fixture(scope="session", autouse=True)
+# def setup_fixture():
+#     host = os.environ.get('TEST_HOST', 'localhost:8888')
+#     command = 'temperature_check'
+#     url = 'http://{}/{}'.format(host, command)
+#     return url
+
 
 class TestServerFunctionality:
     def setup_class(self):
@@ -43,9 +51,9 @@ class TestServerFunctionality:
         assert_that(response.status_code, equal_to(200))
         assert_that(str(response.content), equal_to(steam))
 
-    def test_eleven_signs(self):
-        response = requests.get(self.url, params={'temperature': '99999999999'})
-        assert_that(response.status_code, equal_to(400))
+    def test_eleven_signs(self, fahrenheit_temp, expected_response_code):
+        response = requests.get(self.url, params={'temperature': fahrenheit_temp})
+        assert_that(response.status_code, equal_to(expected_response_code))
         assert_that(str(response.content), equal_to(long_string_error))
 
     def test_twelve_signs(self):
@@ -99,7 +107,6 @@ class TestServerFunctionality:
         assert_that(str(response.text), contains_string(invalid_params))
 
     def test_with_spacebar_between_params(self):
-        # Incorrect processing of values in which the scale with a small letter
         response = requests.get(self.url, params={'temperature': '10 C'})
         assert_that(response.status_code, equal_to(400))
         assert_that(str(response.text), contains_string(invalid_params))
@@ -167,49 +174,35 @@ class TestDefaultFunctionality:
 
     # Check work with default value == Celsius
 
-    def test_default_celsius_max(self):
-        # Range function was not used correctly, max value is absent
-        response = requests.get(self.url, params={'temperature': '999999'})
-        assert_that(response.status_code, equal_to(200))
-        assert_that(str(response.content), equal_to(steam))
+    @pytest.mark.parametrize("default_temp, expected_response_code, condition",
+                             [
+                                 ('999999', 200, steam),   # Range function was not used correctly, max value is absent
+                                 ('1000000', 200, steam),  # Incorrect processing of values above the boundary
+                                 ('100', 200, steam)       # min steam - test correct
+                             ])
+    def test_default_steam_value(self, default_temp, expected_response_code, condition):
+        response = requests.get(self.url, params={'temperature': default_temp})
+        assert_that(response.status_code, equal_to(expected_response_code))
+        assert_that(str(response.content), contains_string(condition))
 
-    def test_default_celsius_value_above_border(self):
-        # Incorrect processing of values above the boundary
-        response = requests.get(self.url, params={'temperature': '1000000'})
-        assert_that(response.status_code, equal_to(200))
-        assert_that(str(response.content), equal_to(steam))
+    @pytest.mark.parametrize("default_temp, expected_response_code, condition",
+                             [
+                                 ('99', 200, liquid),  # Range function was not used correctly, max value for liquid(99) is absent
+                                 ('1', 200, liquid)    # min liquid - test correct
+                             ])
+    def test_default_liquid_value(self, default_temp, expected_response_code, condition):
+        response = requests.get(self.url, params={'temperature': default_temp})
+        assert_that(response.status_code, equal_to(expected_response_code))
+        assert_that(str(response.content), equal_to(condition))
 
-    def test_default_celsius_steam_min(self):
-        response = requests.get(self.url, params={'temperature': '100'})
-        assert_that(response.status_code, equal_to(200))
-        assert_that(str(response.content), equal_to(steam))
-
-    def test_default_celsius_max_liquid(self):
-        # Range function was not used correctly, max value for liquid(99) is absent
-        response = requests.get(self.url, params={'temperature': '99'})
-        assert_that(response.status_code, equal_to(200))
-        assert_that(str(response.content), equal_to(liquid))
-
-    def test_default_celsius_liquid_min(self):
-        response = requests.get(self.url, params={'temperature': '1'})
-        assert_that(response.status_code, equal_to(200))
-        assert_that(str(response.content), equal_to(liquid))
-
-    def test_default_celsius_max_ice(self):
-        # Range function was not used correctly, max value for ice(0) is absent
+    @pytest.mark.parametrize("default_temp, expected_response_code, condition",
+                             [
+                                 ('0', 200, ice),        # Range function was not used correctly, max value for ice(0) is absent
+                                 ('-999999', 200, ice),  # Incorrect handling of negative values
+                                 ('-1000000', 200, ice)  # Incorrect handling of negative values
+                             ])
+    def test_default_ice_value(self, default_temp, expected_response_code, condition):
         response = requests.get(self.url, params={'temperature': '0'})
-        assert_that(response.status_code, equal_to(200))
-        assert_that(str(response.content), equal_to(ice))
-
-    def test_default_celsius_min_ice(self):
-        # Incorrect handling of negative values
-        response = requests.get(self.url, params={'temperature': '-999999'})
-        assert_that(response.status_code, equal_to(200))
-        assert_that(str(response.content), equal_to(ice))
-
-    def test_default_celsius_value_below_border(self):
-        # Incorrect handling of negative values
-        response = requests.get(self.url, params={'temperature': '-1000000'})
         assert_that(response.status_code, equal_to(200))
         assert_that(str(response.content), equal_to(ice))
 
@@ -347,6 +340,7 @@ class TestFahrenheitFunctionality:
         self.host = os.environ.get('TEST_HOST', 'localhost:8888')
         self.command = 'temperature_check'
         self.url = 'http://{}/{}'.format(self.host, self.command)
+
     # Check work Fahrenheit scale
 
     def test_fahrenheit_max(self):
