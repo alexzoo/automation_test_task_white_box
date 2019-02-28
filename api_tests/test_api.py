@@ -65,7 +65,7 @@ class TestServerFunctionality(TestBaseClass):
                                  (None, 400, invalid_params),       # Incorrect handling "None" values
                                  ('C', 400, invalid_params),
                                  ('+10', 200, liquid),              # Incorrect handling with sign + values
-                                 ('10.5', 400, invalid_params),     # Incorrect handling float values
+                                 ('10.5', 200, liquid),             # Incorrect handling float values
                                  ('10с', 200, liquid),              # Incorrect handling small letter values
                                  ('10 C', 200, liquid),
                                  ('«»‘~!@#$%^&*()?>,./\<][ /*<!—«»♣☺♂', 400, invalid_params),

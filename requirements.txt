@@ -1,3 +1,4 @@
+action==1.4.4
 allure-pytest==2.3.2b1
 allure-python-commons==2.3.2b1
 atomicwrites==1.1.5
@@ -39,5 +40,6 @@ SQLAlchemy==1.2.1
 sqlalchemy-mixins==0.2.3
 text-unidecode==1.2
 thriftpy==0.3.9
+timeunit==1.1.0
 typing==3.6.4
 urllib3==1.23
