@@ -67,13 +67,13 @@ class TestServerFunctionality(TestBaseClass):
                                  ('+10', 200, liquid),              # Incorrect handling with sign + values
                                  ('10.5', 200, liquid),             # Incorrect handling float values
                                  ('10с', 200, liquid),              # Incorrect handling small letter values
-                                 ('10 C', 200, liquid),
+                                 ('10 C', 400, invalid_params),
                                  ('«»‘~!@#$%^&*()?>,./\<][ /*<!—«»♣☺♂', 400, invalid_params),
                                  ('select*', 400, invalid_params),
                                  ('<script>alert("XSS1")</script>', 400, invalid_params),
                                  ('DROP TABLE temperature', 400, invalid_params),
                                  ('< form % 20 action =»http: // live.hh.ru» > < input % 20 type =»submit» > < / form >', 400, invalid_params),
-                                 ('010', 200, liquid),              # Incorrect handling 0 values
+                                 ('010', 400, invalid_params),              # Incorrect handling 0 values
                                  (' \'10\' ', 400, invalid_params)
                              ])
     def test_bad_params(self, default_temp, expected_response_code, condition):
