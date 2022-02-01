@@ -10,6 +10,7 @@ ice = "b'ice'"
 error_fahreheith = "b'Unknown value for a Fahrenheit temperature scale'"
 random_string = "-+=jlyvTQZоргесщЩo674642756@%$"
 error_temperature = "Invalid temperature"
+unnoun_type_temperature = "b'unknown'"
 
 class TestMakeUrl:
     def setup_method(self):
@@ -23,9 +24,31 @@ class TestTempCheckWithInvalidParams(TestMakeUrl):
     @pytest.mark.parametrize("defolt_temp, expected_response, right_condition", [
         (random_string, 400, error_temperature)
     ])
+    def test_check_temp_params_from_temp_checker_with_random_string(
+            self, defolt_temp, expected_response, right_condition
+    ):
+        response = requests.get(self.browser_url, params={"temperature": defolt_temp})
+        assert response.status_code == expected_response
+        assert contains(str(response.content), error_temperature)
+
+    @pytest.mark.parametrize("defolt_temp, expected_response, right_condition", [
+        ("++0", 400, unnoun_type_temperature)
+    ])
     def test_check_temp_params_from_temp_checker_with_invalid_temperature(
             self, defolt_temp, expected_response, right_condition
     ):
         response = requests.get(self.browser_url, params={"temperature": defolt_temp})
         assert response.status_code == expected_response
         assert contains(str(response.content), error_temperature)
+
+    @pytest.mark.parametrize("defolt_temp, expected_response, right_condition", [
+        ('<script>alert("XSS1")</script>', 400, error_temperature)
+    ])
+    def test_check_temp_params_from_temp_checker_with_sql_injection(
+            self, defolt_temp, expected_response, right_condition
+    ):
+        response = requests.get(self.browser_url, params={"temperature": defolt_temp})
+        assert response.status_code == expected_response
+        assert contains(str(response.content), error_temperature)
+
+
