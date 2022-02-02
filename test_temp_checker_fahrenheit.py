@@ -68,12 +68,12 @@ class TestTempCheckFahrenheit(TestMakeUrl):
         assert str(response.content) == right_condition
 
     @pytest.mark.parametrize("defolt_temp, expected_response, right_condition", [
-        ("33F", 200, liquid),
+        ("34F", 200, liquid),
         ("-460F", 200, ice),
-        ("212F", 200, steam),
+        ("213F", 200, steam),
     ])
     @pytest.mark.xfail(reason="expected 200, but got 400: 'Unknown temperature scale system fahrenheit', need to fix ")
-    def test_check_temp_params_from_temp_checker_fahrenheit_the_lowest_valid_level_with_integers(
+    def test_check_temp_params_from_temp_checker_fahrenheit_the_valid_range_with_integers(
             self, defolt_temp, expected_response, right_condition
     ):
         response = requests.get(self.browser_url, params={"temperature": defolt_temp})
@@ -86,12 +86,9 @@ class TestTempCheckFahrenheit(TestMakeUrl):
         # check that with this value result is error because -459.67 is absolute zero
         ("-459F", 400, error_fahreheith),
         # check that with this value result is liquid not steam
-        ("211F", 200, liquid),
+        ("210F", 200, liquid),
     ])
-    @pytest.mark.xfail(reason="""
-                        expected 200, but got 400: 'Unknown temperature scale system fahrenheit', need to fix, \
-                        expected 400, but got 500: 'Internal Server Error', need to fix
-     """)
+    @pytest.mark.xfail(reason="expected 200, but got 400: 'Unknown temperature scale system fahrenheit', need to fix")
     def test_check_temp_params_from_temp_checker_fahrenheit_out_of_the_range_level_with_integers(
             self, defolt_temp, expected_response, right_condition
     ):
@@ -101,12 +98,30 @@ class TestTempCheckFahrenheit(TestMakeUrl):
 
     @pytest.mark.parametrize("defolt_temp, expected_response, right_condition", [
         ("31F", 200, ice),
-        ("213F", 200, steam),
-        ("33F", 200, liquid),
+        ("31.9F", 200, ice),
+        ("32.9F", 200, ice),
     ])
     @pytest.mark.xfail(reason="expected 200, but got 400: 'Unknown temperature scale system fahrenheit', need to fix")
-    def test_check_temp_params_from_temp_checker_fahrenheit_the_highest_range_level_with_integers(
+    def test_check_temp_params_from_temp_checker_fahrenheit_values_for_ice(
             self, defolt_temp, expected_response, right_condition
+    ):
+        response = requests.get(self.browser_url, params={"temperature": defolt_temp})
+        assert response.status_code == expected_response
+        assert str(response.content) == right_condition
+
+    @pytest.mark.parametrize("defolt_temp, expected_response, right_condition", [
+        ("2191F", 200, steam),
+        ("2191.9F", 200, steam),
+        ("2193F", 400, error_fahreheith),
+        ("2191F", 200, steam)
+    ])
+    @pytest.mark.xfail(reason="""
+                        expected 200, but got 400: 'Unknown temperature scale system fahrenheit', need to fix, \
+                        max. temp at fahrenheit for steam is 2192 and the highest range for steam need to fix, \
+                        expected 400, but got 500:'Internal Server Error', need to fix
+                        """)
+    def test_check_temp_params_from_temp_checker_fahrenheit_values_for_steam(
+            self, defolt_temp, expected_response,right_condition
     ):
         response = requests.get(self.browser_url, params={"temperature": defolt_temp})
         assert response.status_code == expected_response
