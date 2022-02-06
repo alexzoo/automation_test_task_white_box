@@ -55,12 +55,13 @@ class TestTempCheckFahrenheit(TestMakeUrl):
         ("33.1F", 200, liquid),
         ("-459.67F", 200, ice),
         ("212.1F", 200, steam),
+        ("211.9F", 200, liquid)
     ])
     @pytest.mark.xfail(reason="""
                         expected 200, but got 400: 'Unknown temperature scale system fahrenheit', need to fix \
                         expected 200 but got 500: 'Internal Server Error', need to fix the processing of floats numbers
                         """)
-    def test_check_temp_params_from_temp_checker_fahrenheit_the_lowest_valid_level_with_float_numbers(
+    def test_check_temp_params_from_temp_checker_fahrenheit_the_valid_level_with_float_numbers(
             self, defolt_temp, expected_response, right_condition
     ):
         response = requests.get(self.browser_url, params={"temperature": defolt_temp})
@@ -122,6 +123,19 @@ class TestTempCheckFahrenheit(TestMakeUrl):
                         """)
     def test_check_temp_params_from_temp_checker_fahrenheit_values_for_steam(
             self, defolt_temp, expected_response,right_condition
+    ):
+        response = requests.get(self.browser_url, params={"temperature": defolt_temp})
+        assert response.status_code == expected_response
+        assert str(response.content) == right_condition
+
+    @pytest.mark.parametrize("defolt_temp, expected_response, right_condition", [
+        ("35f", 400, liquid),
+        ("30f", 400, ice),
+        ("214f", 400, steam),
+    ])
+    @pytest.mark.xfail(reason="expected 400, but got 500: 'Internal Server Error', need to fix ")
+    def test_check_temp_params_from_temp_checker_fahrenheit_with_f_param(
+            self, defolt_temp, expected_response, right_condition
     ):
         response = requests.get(self.browser_url, params={"temperature": defolt_temp})
         assert response.status_code == expected_response
