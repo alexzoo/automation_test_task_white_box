@@ -2,4 +2,4 @@ tornado==4.4.2
 voluptuous==0.9.3
 requests==2.18.4
 pytest==3.0.5
-pytest-tornado==0.4.5
+pytest-tornado==0.4.5pip
