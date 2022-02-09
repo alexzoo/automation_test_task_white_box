@@ -8,12 +8,17 @@ class TestTemperature:
     def test_zero(self):
         r = requests.get(BASE_URL + str(0))
         assert r.status_code == 200
-        assert r.text == 'unknown'
+        assert r.text == 'ice'  # bug
 
     def test_on_99(self):
-        r = requests.get(BASE_URL + str(0))
+        r = requests.get(BASE_URL + str(99))
         assert r.status_code == 200
-        assert r.text == 'unknown'
+        assert r.text == 'steam'  # bug
+
+    def test_on_minus_5(self):
+        r = requests.get(BASE_URL + str(-5))
+        assert r.status_code == 200
+        assert r.text == 'ice'  # bug
 
     def test_on_1(self):
         r = requests.get(BASE_URL + str(1))
