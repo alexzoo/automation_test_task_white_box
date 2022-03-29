@@ -15,19 +15,19 @@ TEMPERATURE_SCALE_SYSTEM = {
 
 WATER_STATES = {  # TODO: rewrite this and use limits
     'Celsius': {
-        'steam': tuple(range(100, 999999)),
-        'liquid': tuple(range(1, 99)),
-        'ice': tuple(range(-999999, 0)),
+        'steam': tuple(range(100, 999999)),  # 99, 100, 9999999, 1000000
+        'liquid': tuple(range(1, 99)),  # 0, 99, 100
+        'ice': tuple(range(-999999, 0)),  # -274, -273, 0, 1
     },
     'Kelvin': {
-        'steam': tuple(range(373, 999)),
-        'liquid': tuple(range(274, 373)),
-        'ice': tuple(range(0, 273)),
+        'steam': tuple(range(373, 999)),  # 372, 373, 374, 998, 999, 1000
+        'liquid': tuple(range(274, 373)),  # 273, 274, 275, 372, 373, 374
+        'ice': tuple(range(0, 273)),  # -1, 0, 1, 273, 273, 274
     },
     'Fahrenheit': {
-        'steam': tuple(range(212, 9999)),
-        'liquid': tuple(range(33, 211)),
-        'ice': tuple(range(-9999, 33)),
+        'steam': tuple(range(212, 9999)),  # 211, 212, 213, 9998, 9999, 10000
+        'liquid': tuple(range(33, 211)),  # 32, 33, 34, 210, 211, 212
+        'ice': tuple(range(-9999, 33)),  # -10000, -9999, -9998, 32, 33, 34
     }
 }
 
